@@ -50,7 +50,7 @@ app.get('/', (req, res) => {
 
 //show article by this slug
 app.get('/article/:slug', (req, res) => {
-    let query = `SELECT * FROM article WHERE slug="${req.params.slug}"`
+    let query = `SELECT article.*, author.name AS author_name FROM article INNER JOIN author ON article.author_id = author.id WHERE article.slug="${req.params.slug}"`;
     let article
     con.query(query, (err, result) => {
         if (err) throw err;
@@ -59,6 +59,26 @@ app.get('/article/:slug', (req, res) => {
         res.render('article', {
             article: article
         })
+    });
+});
+
+app.get('/author/:id', (req, res) => {
+    const authorId = req.params.id;
+    const authorQuery = `SELECT name FROM author WHERE id=${authorId}`;
+    const articlesQuery = `SELECT * FROM article WHERE author_id=${authorId}`;
+
+    con.query(authorQuery, (err, authorResult) => {
+        if (err) throw err;
+        const authorName = authorResult[0].name;
+
+        con.query(articlesQuery, (err, articlesResult) => {
+            if (err) throw err;
+
+            res.render('author', {
+                authorName: authorName,
+                articles: articlesResult
+            });
+        });
     });
 });
 
