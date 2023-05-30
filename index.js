@@ -1,6 +1,7 @@
 // application packages
 // Added author name into single article
 const express = require('express')
+const authorRoutes = require('./routes/author')
 const app = express()
 
 const path = require('path')
@@ -40,28 +41,7 @@ const articleRoutes = require('./routes/article'); // import article route
 // to use article routes
 app.use('/', articleRoutes);
 app.use('/article', articleRoutes)
-
-
-app.get('/author/:id', (req, res) => {
-    const authorId = req.params.id;
-    const authorQuery = `SELECT name FROM author WHERE id=${authorId}`;
-    const articlesQuery = `SELECT * FROM article WHERE author_id=${authorId}`;
-
-    con.query(authorQuery, (err, authorResult) => {
-        if (err) throw err;
-        const authorName = authorResult[0].name;
-
-        con.query(articlesQuery, (err, articlesResult) => {
-            if (err) throw err;
-
-            res.render('author', {
-                authorName: authorName,
-                articles: articlesResult
-            });
-        });
-    });
-});
-
+app.use('/author', authorRoutes)
 
 // app start point
 app.listen(3000, () => {
